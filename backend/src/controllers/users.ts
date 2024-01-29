@@ -3,17 +3,10 @@ import createHttpError from "http-errors";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt";
 
-export const getAuthenticcatedUser: RequestHandler = async (req, res, next) => {
-    const authenticatedUserId = req.session.userId;
-
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
     try {
-        if (!authenticatedUserId) {
-            throw createHttpError(401, "User not authenticated.");
-        }
-
-        const user = await UserModel.findById(authenticatedUserId).select("+email").exec();
+        const user = await UserModel.findById(req.session.userId).select("+email").exec();
         res.status(200).json(user);
-        
     } catch (error) {
         next(error);
     }
@@ -23,7 +16,7 @@ interface SignUpBody {
     username?: string,
     email?: string,
     password?: string,
-};
+}
 
 export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = async (req, res, next) => {
     const username = req.body.username;
@@ -32,12 +25,19 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
 
     try {
         if (!username || !email || !passwordRaw) {
-            throw createHttpError(400, "Parameter missing");
+            throw createHttpError(400, "Parameters missing");
         }
 
-        const existingUsername = await UserModel.findOne({ username: username}).exec();
+        const existingUsername = await UserModel.findOne({ username: username }).exec();
+
         if (existingUsername) {
-            throw createHttpError(409, "Username already taken.");
+            throw createHttpError(409, "Username already taken. Please choose a different one or log in instead.");
+        }
+
+        const existingEmail = await UserModel.findOne({ email: email }).exec();
+
+        if (existingEmail) {
+            throw createHttpError(409, "A user with this email address already exists. Please log in instead.");
         }
 
         const passwordHashed = await bcrypt.hash(passwordRaw, 10);
@@ -47,14 +47,13 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
             email: email,
             password: passwordHashed,
         });
+
         req.session.userId = newUser._id;
 
         res.status(201).json(newUser);
-
     } catch (error) {
-        next(error)
+        next(error);
     }
-
 };
 
 interface LoginBody {
@@ -71,8 +70,8 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
             throw createHttpError(400, "Parameters missing");
         }
 
-        const user = await UserModel.findOne({username: username}).select("+passwrod +email").exec();
-        
+        const user = await UserModel.findOne({ username: username }).select("+password +email").exec();
+
         if (!user) {
             throw createHttpError(401, "Invalid credentials");
         }
@@ -86,10 +85,9 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
         req.session.userId = user._id;
         res.status(201).json(user);
     } catch (error) {
-        
+        next(error);
     }
-
-}
+};
 
 export const logout: RequestHandler = (req, res, next) => {
     req.session.destroy(error => {
@@ -98,5 +96,5 @@ export const logout: RequestHandler = (req, res, next) => {
         } else {
             res.sendStatus(200);
         }
-    })
-}
+    });
+};
