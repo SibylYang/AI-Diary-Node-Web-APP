@@ -11,6 +11,7 @@ import NotesPage from './pages/NotesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import PrivacyPage from './pages/PrivacyPage';
 import styles from "./styles/App.module.css";
+import Chatbot from './components/AIChatBot';
 
 function App() {
 
@@ -74,6 +75,7 @@ function App() {
 						}}
 					/>
 				}
+			
 			</div>
 		</BrowserRouter>
 	);

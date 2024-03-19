@@ -1,0 +1,52 @@
+.container {
+   
+  }
+  
+  
+  .closebutton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+  }
+  
+  .messageBox {
+    height: calc(100vh - 300px);
+    /* overflow-y: auto; */
+  }
+  
+  .message {
+    margin-bottom: 20px;
+  }
+  
+  
+  .inputField {
+    width: 100%;
+    padding: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+  }
+  
+  .saveButton {
+    font-size: 10px; 
+    padding: 3px 5px; 
+    margin-bottom: 10px;
+  }
+
+  .summarizeButton {
+    font-size: 12px; 
+    padding: 5px 20px; 
+    margin-right: 10px;
+  }
+  
+  .clearButton {
+    font-size: 12px; 
+    padding: 5px 20px; 
+    margin-left: 10px;
+    /* margin-bottom: 10px; */
+  }
+  
+
+
+  
